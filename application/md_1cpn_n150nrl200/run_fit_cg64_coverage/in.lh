@@ -1,0 +1,56 @@
+
+# for the linker histone, salt must stay at 150 mM (charges from DiSCO)
+#if "${salt} != 150" then "print salt must stay at 150mM for the linker histone" then quit
+
+# calculate the excluded volume strength (given in kT in the SI of the paper)
+variable KB_kcal equal 1.9872041E-4  #kcal/(mol*K)
+variable kev     equal "0.001*(v_KB_kcal*v_T)" #from Luque et al 2014
+
+#Include Variables
+include in.var-lh
+
+#Define beta
+variable kbeta equal 0.5
+
+#Add dihedral style
+dihedral_style   charmm
+
+#Bond Coeffs
+bond_coeff   6   harmonic ${kbondgh}   ${gha}       #gh1-gh3
+bond_coeff   7   harmonic ${kbondgh}   ${ghb}       #gh1-gh4
+bond_coeff   8   harmonic ${kbondgh}   ${ghc}       #gh2-gh3
+bond_coeff   9   harmonic ${kbondgh}   ${ghd}       #gh2-gh6
+bond_coeff  10   harmonic ${kbondgh}   ${ghe}       #gh4-gh5
+bond_coeff  11   harmonic ${kbondgh}   ${ghf}       #gh5-gh6
+bond_coeff  12   harmonic ${kbondgh}   ${ghg}       #gh1-gh6
+bond_coeff  13   harmonic ${kbondgh}   ${ghh}       #gh2-gh5
+bond_coeff  14   harmonic ${kbondgh}   ${ghi}       #gh3-gh4
+bond_coeff  15   harmonic ${kbondctd}   ${ctda}      #ctd-ctd bonds
+bond_coeff  16   harmonic ${kbondctd}   ${ldgh}      #gh-ghost bond
+bond_coeff  17   harmonic ${kbondctd}   ${lngh}      #gh-nucl bond
+
+#Angle Coeffs
+angle_coeff 13  harmonic      ${kbendgh} ${ghalpha}
+angle_coeff 14  harmonic      ${kbendgh} ${ghbeta}
+angle_coeff 15  harmonic      ${kbendgh} ${ghgamma}
+angle_coeff 16  harmonic      ${kbendgh} ${ghdelta}
+angle_coeff 17  harmonic      ${kbendgh} ${ghzeta}
+angle_coeff 18  harmonic      ${kbendgh} ${ghomega}
+angle_coeff 19  harmonic      ${kbeta} ${beta}
+
+#Dihedral Coeffs
+# for the linker histone globular head only
+dihedral_coeff 1 ${ktorsgh} 1 ${ghphi} 0.0
+dihedral_coeff 2 ${ktorsgh} 1 ${ghpsi} 0.0
+#dihedral_coeff 3 ${ktorsgh} 1 ${ghupsi} 0.0
+
+#Pair Coeffs
+pair_modify pair lj/cut mix arithmetic
+
+pair_coeff   3 3*   none
+pair_coeff   1 4*   zewdie 0.01  30.0 80
+pair_coeff   2 4    lj/cut/coul/debye ${kev} 12.500
+pair_coeff   2 5    lj/cut/coul/debye ${kev} 14.000
+pair_coeff   4 4    lj/cut ${kev} 15.000
+pair_coeff   5 5    lj/cut ${kev} 18.000 
+

@@ -1,0 +1,163 @@
+# Nucleosome 
+
+# Subversion Info
+#$Revision$
+#$LastChangedDate$
+
+log		log.lammps.53
+
+units	     real
+dimension    3
+boundary     p p p
+
+
+# atom style, potential type:
+atom_style  hybrid ellipsoid full
+
+# Random number seed for orientation
+variable run equal 53
+variable random equal "v_run + 1"
+
+# Is there a linker histone
+variable lh equal 0
+
+# Simulation Temperature
+variable T equal 300
+variable salt equal 150 # in mM
+
+# simulation output
+variable freq equal 1000000 
+variable freqhalf equal ${freq}/2
+
+# --------------------------------------------------------------------------
+# calculate Debye Length, assumes that T and salt are defined
+# --------------------------------------------------------------------------
+variable PV equal 8.8541878176E-22   # permittivity of vacuum [C^2/J/A]
+variable KB equal 1.3806505E-23      # Boltzmann constant [J/K]
+variable NA equal 6.0221415E23       # Avogadro constant [1/mol]
+variable EC equal 1.60217653E-19     # elementary charge unit [C]
+
+# Hinckley 2013 eq 15 and 16
+variable esolT equal "249.4 - 7.88E-01 * v_T + 7.20E-04 * v_T * v_T"
+variable esolC equal "(1.000 - (0.2551 * v_salt / 1000) + (0.05151 * v_salt * v_salt / 1000 / 1000) - (0.006889 * v_salt * v_salt * v_salt / 1000 / 1000 / 1000 ))"
+variable esol equal "v_esolT * v_esolC"
+
+# Debye length
+variable ldebye_inv equal "1/sqrt(v_esol * v_PV * v_KB * v_T * 1.0E30 / (2.0 * v_NA * v_EC * v_EC * v_salt))"
+variable ldebye_cut equal "8.0/v_ldebye_inv" # cutoff at 8 ldebye
+# --------------------------------------------------------------------------
+
+dielectric ${esol}
+
+# Read parameters
+include in.variables
+include in.var-zewdie
+include in.var-gauss
+
+#parameters that must be determined
+variable kalpha equal 10
+variable korient equal 100
+variable kzeta equal 100
+variable ktwistnucldna equal 10
+#variable ktheta equal 1.589545 # c1/601 seq
+#variable ktheta equal 3.106264 # c2
+variable ktheta equal 0.261944 # TTAGGG 
+#variable ktheta equal 0.142762 # polyA  
+
+# Read in the configuration
+read_data in.lammps_eq53
+
+# --------------------------------------------------------------------------
+# Define Model interaction styles
+# --------------------------------------------------------------------------
+bond_style	     hybrid harmonic
+angle_style	     hybrid cosine wlctwist harmonic orient orient/cosine
+
+# zewdie parameters:          e000   ecc2   e220   e222   e224   
+#                             s000   scc2    s220    s222    s224
+if "${lh} == 0" then &
+"pair_style hybrid zewdie     ${pe000}   ${pecc2}   ${pe220}  ${pe222} ${pe224} &
+                             ${ps000}   ${pscc2}   ${ps220}  ${ps222} ${ps224} &
+                  coul/debye ${ldebye_inv} ${ldebye_cut} &
+                  gauss/aniso ${gauss_rcut}" &
+else &
+"pair_style hybrid zewdie     ${pe000}   ${pecc2}   ${pe220}  ${pe222} ${pe224} &
+                             ${ps000}   ${pscc2}   ${ps220}  ${ps222} ${ps224} &
+                  coul/debye ${ldebye_inv} ${ldebye_cut} &
+                  gauss/aniso ${gauss_rcut} &
+                  lj/cut       30 &
+                  lj/cut/coul/debye ${ldebye_inv} 50 ${ldebye_cut}"
+
+
+#Bond Coeffs
+bond_coeff   1   harmonic ${kbondnucl} ${lc}       # bond between end bead and nucl
+bond_coeff   2   harmonic ${kbond}     ${lb}       # bead-bead
+bond_coeff   3   harmonic ${kbondnucl} ${la}       # bead-bead stem
+bond_coeff   4   harmonic ${kbondnucl} ${le}       # bead-centerghost 
+bond_coeff   5   harmonic ${kbondnucl} ${ld}       # nucl-centerghost 
+
+#Angle Coeffs
+angle_coeff	1	cosine		  ${kangle}                                              # bead-bead 
+angle_coeff 2   wlctwist      ${kalign} ${ktwist}     ${omega0}                      # bead-bead twist
+angle_coeff	3	orient        angle_u   ${kalign} ${kalign} ${kalign} 0.0 0.0 0.0    # bead-bead twist
+angle_coeff 4   orient        angle_f   0.0 ${kzeta} 0.0 ${zeta} ${zeta} 0.0         # bead(entry/exit)-nucl orient f
+angle_coeff 11  orient        angle_f   ${kzeta} 0.0 0.0 ${zeta} ${zeta} 0.0         # bead(entry/exit)-nucl orient f
+angle_coeff 10  orient/cosine angle_f   0.0 0.0 ${ktheta} 0.0 0.0 ${theta}           # bead(entry/exit)-nucl orient f
+angle_coeff	5	orient        angle_u   ${korient} ${korient} ${korient} 0.0 0.0 0.0 # nucl ghost orient u
+angle_coeff	12  orient        angle_f   ${korient} ${korient} ${korient} 90.0 90.0 0.0 # nucl ghost orient u
+angle_coeff	6	harmonic	  ${kalpha} ${alpha}                                       # dna-nucl bend angle
+angle_coeff	7	orient        angle_u   0.0 0.0 ${kalpha} 0.0 0.0 ${eta}               # nucl dna align u
+angle_coeff	8	orient        angle_u   0.0 0.0 ${kalpha} 0.0 0.0 ${mu}                # nucl dna align u
+angle_coeff	9	orient        angle_f   0.0 0.0 ${ktwistnucldna} 0.0 0.0 0.0           # bead entry/exit orient f
+
+#Pair Coeffs
+# zewdie     i j style  eps    sig    cutoff
+pair_coeff   1 1 zewdie ${pe0} ${ps0} ${zewdie_rcut}
+pair_coeff   1 2 zewdie 0.01  30.0  80
+pair_coeff   2 2 coul/debye
+pair_coeff   1 3 none
+# gauss/aniso i j style      gauss width  gauss depth  gauss_pos   gauss_theta0    gauss_phi0    gauss_Ktheta    gauss_Kphi
+pair_coeff   2 3 gauss/aniso ${gauss_sig} ${gauss_d0} ${gauss_r0} ${gauss_theta0} ${gauss_phi0} ${gauss_ktheta} ${gauss_kphi}
+pair_coeff   3 3 none
+# --------------------------------------------------------------------------
+
+
+# simple lammps logic to only include in.lh if
+if "${lh} == 0" then "jump SELF skipinclude"
+include in.lh
+label skipinclude
+
+################################################################
+
+
+timestep     60  # 60 femtoseconds
+
+group dnas molecule 1
+group nucs molecule >= 2
+
+fix 1 all nve/asphere
+fix 2 all langevin   ${T} ${T} 2000 ${random} angmom 3.33333 scale 1 6.0
+fix com all recenter 0.0 0.0 0.0 units box
+
+# Initialize velocities from a Gaussian distribution
+velocity all create ${T} ${random} rot yes mom yes dist gaussian
+
+compute	q all property/atom quatw quati quatj quatk
+compute rot all erotate/asphere
+variable myerot equal c_rot
+variable myetot equal etotal+c_rot
+
+# dump trajectory during corrent iteration:
+dump 1 all custom ${freq} traj.53.dump id type x y z c_q[1] c_q[2] c_q[3] c_q[4]
+
+# thermo data:
+thermo_style custom step ebond eangle edihed ecoul epair pe ke c_rot etotal v_myetot temp
+
+thermo	     ${freq}
+thermo_modify flush yes
+
+# smd
+fix pl all plumed plumedfile plumed_smd53.dat outfile plumed_smd53.out
+
+restart ${freqhalf} restart.53.0 restart.53.1
+run	    100000000

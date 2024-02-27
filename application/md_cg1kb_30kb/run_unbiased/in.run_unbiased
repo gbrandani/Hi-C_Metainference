@@ -1,0 +1,64 @@
+# set logfile
+log		log.run_unbiased
+
+# Box and units  (use LJ units and periodic boundaries)
+units		real
+# so:
+#    mass = grams/mole		# same in gromacs
+#    distance = Angstroms	# nm in gromacs
+#    time = femtoseconds	# ps in gromacs
+#    energy = Kcal/mole		# Kcal/mol in gromacs
+#    velocity = Angstroms/femtosecond	# ...
+#    force = Kcal/mole-Angstrom	# ...
+#    temperature = Kelvin	# same in gromacs
+#    pressure = atmospheres	# same in gromacs
+#    dynamic viscosity = Poise	#
+dimension	3
+atom_style	molecular
+boundary	p p p
+
+# Pair interactions require lists of neighbours to be calculated
+neighbor	2.0 nsq # may be faster for unsolvated small molecules in a non-periodic box, scales as N^2
+neigh_modify	every 1 delay 10 check yes # default options
+
+# define interactions
+# kBT = 1.38064852e-23x300 = 4.1419456e-24 kJ = 0.989949e-24 kCal (1 kCal = 4.184 kJ) = 0.596161 kCal/mol (Navogadro=6.022e23)
+# using kBT ~ 0.6 kCal mol (can also be obtained using 1 kBT ~ 2.5 kJ/mol)
+pair_style	lj/cut 3.0 # cutoff=2^(1/6)
+bond_style	harmonic
+#angle_style	cosine # E = K cos(theta) + const
+angle_style	cosine/squared # E = K [cos(theta)-cos(theta0)]^2
+special_bonds	lj 0.0 1.0 1.0 # scaling coefficiants for 1-2, 1-3, and 1-4 neighbor interactions
+
+# READ "start" data file
+read_data	data.input
+
+# force filed parameters
+pair_coeff	1 1 0.18 1.0 3.0 # type1 type2 eps sigma cutoff
+bond_coeff	1 7.0 1.0 # type E=K(r-r0)^2 -> kBT/2=K<(r-r0)^2> -> K=kBT/2/<(r-r0)^2>=0.6/2/(47/228)^2
+#angle_coeff	1 1.2       # cosine:         type, K;         -log(cos_theta) has a slope of     K ~2 kBT = 1.2 Kcal/mol
+angle_coeff	1 0.6 180.0 # cosine/squared: type, K, theta0; -log(cos_theta) has a curvature of K ~1 kBT = 0.6 Kcal/mol
+
+# Sample thermodynamic info  (temperature, energy, pressure, etc.) #####
+thermo		10000
+thermo_style	custom step temp pe epair ebond
+
+# Dump configs - "simple dumpings"
+dump		1 all dcd 10000 run_unbiased.dcd
+
+# set timestep from (lJ steeper than bonds)
+# tau   = sqrt(mass/eps)sigma
+# mass  = 1 grams/mole = 0.001 kg/mole = 1.66058e-27 kg (divide by Navogadro)
+# eps   = kBT = 4.1419e-21 J
+# sigma = 1.0 A = 1e-10 m
+# tau   = sqrt(1.66058/4.1419 x10-6) 1e-10 = 63e-15 s = 63 fs
+# dt = 0.005 tau = 0.3 fs
+fix		nve all nve   ###NVE ensemble
+fix		lan all langevin 300.0 300.0 1000.0 1 # Langevin integrator Tstart Tstop damp rndseed
+fix		com all recenter 0.0 0.0 0.0 units box
+timestep        0.3
+reset_timestep  0
+
+# run
+restart		10000000 restart.run_unbiased # create restart file
+run		10000000

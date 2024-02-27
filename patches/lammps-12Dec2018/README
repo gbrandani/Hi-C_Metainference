@@ -1,0 +1,4 @@
+to use the 1cpn model in lammps, copy the .h and .cpp patch files in the src directory of lammps
+
+to install lammps with plumed, use:
+$ cmake ../cmake -D CMAKE_INSTALL_PREFIX=/your/install/directory -DPKG_USER-PLUMED=yes -DPKG_ASPHERE=yes -DPKG_MOLECULE=yes -DPKG_REPLICA=yes -DPKG_MANYBODY=yes

@@ -1,0 +1,16 @@
+# Defining model variables for LAMMPS
+variable la equal 91.850785
+variable lb equal 9.900000
+variable lc equal 47.175048
+variable ld equal 35.000000
+variable le equal 51.917692
+variable omega0 equal 102.857143
+variable mu equal 14.088347
+variable zeta equal 110.064912
+variable eta equal 165.911653
+variable theta equal 17.142857
+variable kbond equal 163.324588
+variable kangle equal 29.977575
+variable ktwist equal 38.854429
+variable kalign equal 388.544295
+variable kbondnucl equal 335.926917

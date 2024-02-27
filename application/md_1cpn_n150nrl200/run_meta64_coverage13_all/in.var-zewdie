@@ -1,0 +1,18 @@
+variable ps0   equal 55.000000
+variable ps000 equal 1.558539
+variable pscc2 equal -0.755781
+variable ps220 equal 0.142901
+variable ps222 equal 0.292164
+variable ps224 equal 0.000000
+#note that energy units normalized to pe0 = 1
+#for counterion condensed:
+variable pe0   equal 1.163958
+#for non-condensed:
+#variable pe0   equal 7.946940
+variable pe000 equal 0.605331
+variable pecc2 equal 0.527787
+variable pe220 equal -0.029012
+variable pe222 equal -0.269503
+variable pe224 equal 0.000000
+
+variable zewdie_rcut equal 300

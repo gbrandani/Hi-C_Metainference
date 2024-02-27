@@ -1,0 +1,22 @@
+# molinfo
+WHOLEMOLECULES STRIDE=1 ENTITY0=1-30
+
+# contact map
+INCLUDE FILE=plumed_hic_all.dat
+
+# metainference
+METAINFERENCE ...
+    ARG=(hic\.hic-.*)
+    PARARG=(hic\.exp-.*)
+    NOISETYPE=GAUSS
+    OPTSIGMAMEAN=SEM AVERAGING=200
+    #OPTSIGMAMEAN=NONE # not sampled
+    SIGMA_MEAN0=1.0
+    SIGMA0=100.0 SIGMA_MIN=0.001 SIGMA_MAX=1000.0 DSIGMA=0.1 # when DSIGMA=0.0, do not sample
+    SCALEDATA SCALE_PRIOR=FLAT SCALE0=50.0 DSCALE=1.0 SCALE_MIN=10.0 SCALE_MAX=1000.0 # when DSCALE=0.0, do not sample
+    WRITE_STRIDE=1000
+    LABEL=meta
+    TEMP=300.0 # only needed if code does not passes temperature to plumed
+... METAINFERENCE
+
+PRINT ARG=meta.* STRIDE=1000 FILE=colvar_multi.dat

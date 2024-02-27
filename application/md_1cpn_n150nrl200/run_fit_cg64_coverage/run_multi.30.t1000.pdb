@@ -1,0 +1,35 @@
+TITLE     MDANALYSIS FRAMES FROM 0, STEP 1: Created by PDBWriter
+CRYST1   47.500   47.500   47.500  90.00  90.00  90.00 P 1           1
+MODEL        1
+ATOM      1  H   ALA X   1       4.647  -0.223   0.526  1.00  1.00      SYST  
+ATOM      2  H   ALA X   2       4.168  -0.176   1.299  1.00  1.00      SYST  
+ATOM      3  H   ALA X   3       3.104  -0.743   1.867  1.00  1.00      SYST  
+ATOM      4  H   ALA X   4       2.279  -1.806   1.038  1.00  1.00      SYST  
+ATOM      5  H   ALA X   5       1.286  -1.898   0.664  1.00  1.00      SYST  
+ATOM      6  H   ALA X   6       0.898  -2.208   1.363  1.00  1.00      SYST  
+ATOM      7  H   ALA X   7       0.752  -2.133   2.225  1.00  1.00      SYST  
+ATOM      8  H   ALA X   8       1.509  -1.621   2.474  1.00  1.00      SYST  
+ATOM      9  H   ALA X   9       1.091  -0.934   2.036  1.00  1.00      SYST  
+ATOM     10  H   ALA X  10       0.273  -0.847   1.284  1.00  1.00      SYST  
+ATOM     11  H   ALA X  11       0.188   0.549   1.300  1.00  1.00      SYST  
+ATOM     12  H   ALA X  12      -0.818  -0.379   0.729  1.00  1.00      SYST  
+ATOM     13  H   ALA X  13       0.050  -0.178   0.388  1.00  1.00      SYST  
+ATOM     14  H   ALA X  14       0.281   0.293  -0.311  1.00  1.00      SYST  
+ATOM     15  H   ALA X  15       1.177   0.624  -0.411  1.00  1.00      SYST  
+ATOM     16  H   ALA X  16       0.695   1.749   0.592  1.00  1.00      SYST  
+ATOM     17  H   ALA X  17      -0.836   0.735   0.115  1.00  1.00      SYST  
+ATOM     18  H   ALA X  18      -0.930   0.152  -0.433  1.00  1.00      SYST  
+ATOM     19  H   ALA X  19      -1.934  -0.779  -0.131  1.00  1.00      SYST  
+ATOM     20  H   ALA X  20      -3.301  -0.819   0.317  1.00  1.00      SYST  
+ATOM     21  H   ALA X  21      -3.530  -1.579  -0.964  1.00  1.00      SYST  
+ATOM     22  H   ALA X  22      -1.747  -1.328  -1.018  1.00  1.00      SYST  
+ATOM     23  H   ALA X  23      -3.030  -0.642  -0.916  1.00  1.00      SYST  
+ATOM     24  H   ALA X  24      -3.357   0.369  -2.122  1.00  1.00      SYST  
+ATOM     25  H   ALA X  25      -2.188   1.052  -2.275  1.00  1.00      SYST  
+ATOM     26  H   ALA X  26      -1.158   1.831  -2.780  1.00  1.00      SYST  
+ATOM     27  H   ALA X  27      -0.114   1.753  -2.837  1.00  1.00      SYST  
+ATOM     28  H   ALA X  28      -0.544   2.843  -2.117  1.00  1.00      SYST  
+ATOM     29  H   ALA X  29       0.521   2.784  -1.346  1.00  1.00      SYST  
+ATOM     30  H   ALA X  30       0.567   3.558  -0.558  1.00  1.00      SYST  
+ENDMDL
+END
